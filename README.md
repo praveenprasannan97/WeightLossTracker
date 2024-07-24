@@ -1,6 +1,7 @@
 # WeightLossTracker
 This is a website created using Django and MySQL. 
 To get started add you MySQL database by editing /weighttracker/settings.py
+```
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -11,3 +12,4 @@ DATABASES = {
         'PORT': '3306',
     }
 }
+```
