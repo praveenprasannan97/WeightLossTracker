@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weight List</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <h2 class="fw-bold">Weight Loss Tracker</h2>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{% url 'add_weight' %}">Add Weight</a>
+              </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" aria-disabled="true">{{request.user.username}}</a>
+                </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    <div class="container">
+        <h2>Weight List</h2>
+        <br>
+        <!-- <p><a href="{% url 'add_weight' %}">Add Weight </a> {{request.user.username}} <a href="{% url 'logout' %}">Logout</a> </p> -->
+        <br>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Weight in Kg</th>
+                    <th>Edit/Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for weight in page_obj %}
+                    <tr>
+                        <td>{{ weight.date }}</td>
+                        <td>{{ weight.weight }}</td>
+                        <td>
+                            <a href="{% url 'edit_weight' weight.id %}">Edit</a>
+                            <!-- <a href="{% url 'delete_weight' weight.id %}">Delete</a> -->
+                            <a href="#" class="delete-weight" data-id="{{ weight.id }}">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+        <br>
+        <div>
+            <form id="weight-loss-form">
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date">
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date">
+                <button type="submit" class="btn btn-primary btn-sm">Weight Difference</button>
+            </form>
+            <p id="weight-result"></p>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this weight entry?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            var deleteId = null;
+
+            $('.delete-weight').click(function(e){
+                e.preventDefault();
+                deleteId = $(this).data('id');
+                $('#deleteModal').modal('show');
+            });
+
+            $('#confirm-delete').click(function(){
+                if(deleteId) {
+                    $.ajax({
+                        url: 'delete_weight/' + deleteId + '/',
+                        method: 'POST',
+                        data: {
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        success: function(response) {
+                            if(response.success) {
+                                location.reload();
+                            } else {
+                                alert(response.error);
+                            }
+                        },
+                        error: function(response) {
+                            alert('An error occurred.');
+                        }
+                    });
+                }
+            });
+        })
+        $('#weight-loss-form').on('submit', function(ev) {
+            ev.preventDefault();
+            $.ajax({
+                type: 'GET',
+                url: 'weight_loss/',
+                data: {
+                    start_date: $('#start_date').val(),
+                    end_date: $('#end_date').val()
+                },
+                success: function(response) {
+                    if (response.weight_loss !== undefined) {      //>=0
+                        $('#weight-result').text('Weight loss: ' + response.weight_loss + ' kg');
+                    }
+                    else {
+                        $('#weight-result').text(response.error);
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/js/bootstrap.min.js"></script>
+</body>
+</html>

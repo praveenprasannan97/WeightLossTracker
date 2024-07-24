@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="Description" content="Enter your description here"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+    h1 {
+        color: #333;
+        margin-bottom: 20px;
+        margin-left: 20px;
+        text-align: center;
+    }
+    form {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #303030;
+    }
+    input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+    button {
+        width: 100%;
+        padding: 10px;
+        background-color: #007BFF;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+<title>Login</title>
+</head>
+<body>
+    <div class="d-flex vh-100 align-items-center justify-content-center">
+        <div class="col-3">
+            <div class="container-fluid">
+                <h1 class="fw-bold">Login</h1>
+                <br>
+                <form method="post">
+                    {% csrf_token %}
+                    <!-- {{ form.as_p }}
+                    <button type="submit">Login</button> -->
+                    <div class="form-group">
+                        {{ form.username.label_tag }} {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger">
+                                {{ form.username.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        {{ form.password.label_tag }} {{ form.password }}
+                        {% if form.password.errors %}
+                            <div class="text-danger">
+                                {{ form.password.errors }}
+                                {{ error }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <br>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+                <p>Don't have an account? <a href="{% url 'signup' %}">Sign up </a>here</p>
+            </div>
+        </div>
+    </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/js/bootstrap.min.js"></script>
+</body>
+</html>
